@@ -17,5 +17,5 @@ float noise2(in vec2 p) {
 }
 
 float terrain(vec2 pos) {
-  return 18. * noise2(pos * 0.005) - 4.;
+  return 18. * noise2(pos * 0.005 + vec2(0., 0.1)) - 4.;
 }
