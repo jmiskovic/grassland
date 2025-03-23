@@ -153,10 +153,10 @@ vec4 lovrmain() {
 
 m.gpu = {
   haze = 0.1,
-  horizon_offset = 1,
+  horizon_offset = 30,
   sun_intensity = 40,
   sun_sharpness = 0.95,
-  sun_position = Vec3(1, 1, -1),
+  sun_position = Vec3(2, 2, -1),
   gamma_correction = 2.2,
   hue = Vec3(0.2, 0.6, 1.0),
 }

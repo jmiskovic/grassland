@@ -16,11 +16,12 @@ If you can improve it please let me know!
 
 The fog module prepares the fog volumetric lookup in two stages:
 
-* medium density and in-scattering of each voxel is computed into a 3D texture aligned with camera frustum
-
+* the medium density and in-scattering of each voxel is computed into a 3D texture (its voxels aligned with camera frustum)
 * the raymarching computes final lookup values of transmittance and in-scattering
 
-This produces no visual results. Instead, all other scene elements (grass, terrain mesh, skybox) need to use `vfog.fragment` GLSL snippet to add the fog influence on its fragments, along any other shader processing.
+This computation produces no visual results. Instead all other scene elements (grass, terrain mesh,
+skybox) need to use `vfog.fragment` GLSL snippet to add the fog influence on its fragments, along
+any other shader processing.
 
 Here's how to integrate volumetric fog:
 
@@ -36,8 +37,9 @@ vec4 lovrmain() {
 
 ## User interface
 
-Still WiP. The UI uses right mouse button for interaction (VR should work with direct controller
-pushing the widgets). When running in simulator use *Ctrl* + arrows to fine-position the camera.
+Still WiP. The UI uses right mouse button for interaction (VR should work with controller being
+pushed into widgets). When running in simulator use *Ctrl* + arrows to fine-position the camera over
+the chosen panel.
 
 The editable numerical values have a `[ - ]` button on left side which enables negative values. On
 right side the `[ >> ]` increases (doubles) the slider range while `[ << ]` button decreases

@@ -53,10 +53,11 @@ function number_slider_widget:init(options)
   self.parent:nest(panel)
 end
 
+
 function number_slider_widget:update(dt, pointer, handness) end
 function number_slider_widget:draw(pass, pose) end
-
 chui.initWidgetType('numberSlider', number_slider_widget)
+
 
 -- boolean toggle widget
 local boolean_toggle_widget = {}
@@ -67,13 +68,17 @@ function boolean_toggle_widget:init(options)
   self.parent:toggle{ text=options.key, state=state, span = 2,
     callback = function(self, state)
       options.source_table[options.key] = state
+      if options.callback then
+        options.callback(self, state, options.source_table)
+      end
     end}
 end
 
+
 function boolean_toggle_widget:update(dt, pointer, handness) end
 function boolean_toggle_widget:draw(pass, pose) end
-
 chui.initWidgetType('booleanToggle', boolean_toggle_widget)
+
 
 -- vector sliders widget
 local vector_components_widget = {}
@@ -87,6 +92,9 @@ function vector_components_widget:init(options)
   local list = { vec_source:unpack() }
   local callback = function(slider, value, source_table)
     vec_source:set(unpack(list))
+    if options.callback then
+      options.callback(slider, value, options.source_table)
+    end
   end
   local panel = chui.panel{ frame='none', palette=self.parent.palette }
   panel:label{ text = options.key:upper(), span = { 2.5, 0.2 }, text_scale = 1.6 }
@@ -100,10 +108,11 @@ function vector_components_widget:init(options)
   self.parent:nest(panel)
 end
 
+
 function vector_components_widget:update(dt, pointer, handness) end
 function vector_components_widget:draw(pass, pose) end
-
 chui.initWidgetType('vectorComponents', vector_components_widget)
+
 
 local function isColorVector(key)
   for _, keyword in ipairs(color_keywords) do
@@ -116,13 +125,11 @@ end
 
 
 local from_table_widget = {}
-from_table_widget.defaults = { source_table = nil, key = nil }
+from_table_widget.defaults = { source_table = nil, key = nil, callback = nil }
 
 function from_table_widget:init(options)
   local folding_panel = chui.panel{ palette=chui.palettes[9], frame='none' }
   local panel = folding_panel:foldable{ text=options.key, text_span=1.4, frame='none', collapsed=false, palette=chui.palettes[9] }.content
-  --local panel = chui.panel({palette=chui.palettes[9], frame='none'})
-
   panel.source_table = options.source_table
   local keys = {}
   for k, v in pairs(options.source_table) do
@@ -131,25 +138,24 @@ function from_table_widget:init(options)
       table.insert(keys, k)
     end
   end
-
   table.sort(keys)
 
   for i, key in ipairs(keys) do
     local etype = type(options.source_table[key])
     if etype == 'number' then
-      panel:numberSlider{ source_table=options.source_table, key=key }
+      panel:numberSlider{ source_table=options.source_table, key=key, callback=options.callback }
       panel:row()
     elseif etype == 'boolean' then
-      panel:booleanToggle{ source_table=options.source_table, key=key }
+      panel:booleanToggle{ source_table=options.source_table, key=key, callback=options.callback }
       panel:row()
     elseif etype == 'userdata' and options.source_table[key].unpack then
       local list = {options.source_table[key]:unpack()}
       if #list <= 4 then
         if isColorVector(key) then
-          panel:colorPicker{ color=options.source_table[key] }
+          panel:colorPicker{ color=options.source_table[key], callback=options.callback }
           panel:row()
         else
-          panel:vectorComponents{ source_table=options.source_table, key=key }
+          panel:vectorComponents{ source_table=options.source_table, key=key, callback=options.callback }
           panel:row()
         end
       end
@@ -162,19 +168,19 @@ function from_table_widget:init(options)
   end
   panel:layout()
   folding_panel:layout()
-  --self.key = folding_panel
   self.parent:nest(folding_panel)
   return self
 end
 
+
 function from_table_widget:update(dt, pointer, handness) end
 function from_table_widget:draw(pass, pose) end
-
 chui.initWidgetType('fromTable', from_table_widget)
+
 
 local m = {}
 
-function m.integrate(source_table, pose)
+function m.integrate(source_table, pose, callback)
   pose = pose or mat4(0, 1.5, -0.5):scale(0.2)
   function m.update(dt)
     chui.update(dt)
@@ -185,7 +191,7 @@ function m.integrate(source_table, pose)
 
   local chui = require'ui/chui'
   local panel = chui.panel()
-  panel:fromTable({source_table=source_table})
+  panel:fromTable({ source_table=source_table, callback=callback })
   panel:layout()
   panel.pose:set(pose)
 
